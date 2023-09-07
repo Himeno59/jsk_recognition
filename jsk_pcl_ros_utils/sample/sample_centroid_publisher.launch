@@ -7,7 +7,7 @@
   <node name="centroid_publisher"
         pkg="nodelet" type="nodelet"
         args="standalone jsk_pcl_utils/CentroidPublisher">
-    <remap from="~input" to="/camera/depth_registered/points" />
+    <remap from="~input" to="/HSI_color_filter/hsi_output/" />
     <rosparam>
       publish_tf: true
     </rosparam>
@@ -17,7 +17,7 @@
   <node name="passthrough"
         pkg="nodelet" type="nodelet"
         args="standalone pcl/PassThrough">
-    <remap from="~input" to="/camera/depth_registered/points" />
+    <remap from="~input" to="/HSI_color_filter/hsi_output/" />
     <rosparam>
       frame_id: camera_link
       filter_field_name: z
