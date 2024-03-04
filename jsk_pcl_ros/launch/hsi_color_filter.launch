@@ -14,17 +14,30 @@
   <arg name="FILTER_NAME_SUFFIX" default=""/>
   <arg name="OUTPUT" default="hsi_output$(arg FILTER_NAME_SUFFIX)"/>
 
-  <arg name="h_max" default="8" />
-  <arg name="h_min" default="5" />
-  <arg name="s_max" default="200" />
-  <arg name="s_min" default="60" />
-  <arg name="i_max" default="255" />
-  <arg name="i_min" default="100" />
+  <arg name="color1" default="light_blue"/>
+  <arg name="color2" default="white"/>
+
+  <arg name="detect_color1" default="true"/>
+  <arg name="detect_color2" default="true"/>
+  
+  <!-- <arg name="h_max" default="127" /> -->
+  <!-- <arg name="h_min" default="-128" /> -->
+  <!-- <arg name="s_max" default="255" /> -->
+  <!-- <arg name="s_min" default="0" /> -->
+  <!-- <arg name="i_max" default="255" /> -->
+  <!-- <arg name="i_min" default="0" /> -->
+  
+  <!-- <arg name="h_max" default="8" /> -->
+  <!-- <arg name="h_min" default="5" /> -->
+  <!-- <arg name="s_max" default="200" /> -->
+  <!-- <arg name="s_min" default="60" /> -->
+  <!-- <arg name="i_max" default="255" /> -->
+  <!-- <arg name="i_min" default="100" /> -->
 
   <arg name="create_manager" default="true" />
   <arg name="manager" default="hsi_filter_manager$(arg FILTER_NAME_SUFFIX)" />
 
-  <group ns="$(arg DEFAULT_NAMESPACE)">
+  <group ns="$(arg color1)" if="$(arg detect_color1)">
     <node if="$(arg create_manager)"
           pkg="nodelet" type="nodelet" name="$(arg manager)"
           args="manager" output="screen"/>
@@ -37,12 +50,12 @@
         use_indices: false
         keep_organized: true
       </rosparam>
-      <param name="h_limit_max" value="$(arg h_max)" />
-      <param name="h_limit_min" value="$(arg h_min)" />
-      <param name="s_limit_max" value="$(arg s_max)" />
-      <param name="s_limit_min" value="$(arg s_min)" />
-      <param name="i_limit_max" value="$(arg i_max)" />
-      <param name="i_limit_min" value="$(arg i_min)" />
+      <param name="h_limit_max" value="-40" />
+      <param name="h_limit_min" value="-128" />
+      <param name="s_limit_max" value="170" />
+      <param name="s_limit_min" value="40" />
+      <param name="i_limit_max" value="255" />
+      <param name="i_limit_min" value="50" />
     </node>
     <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
@@ -65,6 +78,48 @@
       </rosparam>
     </node>
 
+  </group>
+
+  <group ns="$(arg color2)" if="$(arg detect_color2)">
+    <node if="$(arg create_manager)"
+          pkg="nodelet" type="nodelet" name="$(arg manager)"
+          args="manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
+      <remap from="~input" to="$(arg INPUT)" />
+      <remap from="~output" to="$(arg OUTPUT)" />
+      <rosparam>
+        use_indices: false
+        keep_organized: true
+      </rosparam>
+      <param name="h_limit_max" value="127" />
+      <param name="h_limit_min" value="-128" />
+      <param name="s_limit_max" value="20" />
+      <param name="s_limit_min" value="0" />
+      <param name="i_limit_max" value="255" />
+      <param name="i_limit_min" value="250" />
+    </node>
+    <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
+      <remap from="~input" to="$(arg OUTPUT)" />
+      <rosparam>
+        tolerance: 0.02
+        min_size: 100
+      </rosparam>
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          name="cluster_decomposer$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/ClusterPointIndicesDecomposerZAxis $(arg manager)"
+          output="screen" clear_params="true">
+      <remap from="~input" to="$(arg OUTPUT)" />
+      <remap from="~target" to="euclidean_clustering$(arg FILTER_NAME_SUFFIX)/output" />
+      <remap from="~debug_output" to="debug_output$(arg FILTER_NAME_SUFFIX)" />
+      <remap from="~boxes" to="boxes$(arg FILTER_NAME_SUFFIX)" />
+      <rosparam>
+      </rosparam>
+    </node>
 
   </group>
 
