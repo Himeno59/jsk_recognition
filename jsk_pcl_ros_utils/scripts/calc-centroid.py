@@ -6,6 +6,7 @@ import cv2
 from geometry_msgs.msg import PointStamped
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
+import tf
 
 class CalcBallCentroidNode:
     def __init__(self):
@@ -19,6 +20,7 @@ class CalcBallCentroidNode:
         self.point_pub = rospy.Publisher('/ball_detection/ball_centroid_point', PointStamped, queue_size=1)
         
     def calc_cb(self, msg):
+        # カメラ座標系での計算
         # 見えている点群(半球)の重心
         x, y, z = msg.point.x, msg.point.y, msg.point.z
         D = (x**2 + y**2 + z**2)**0.5
@@ -29,8 +31,12 @@ class CalcBallCentroidNode:
         msg.point.x = x + k * x/D
         msg.point.y = y + k * y/D
         msg.point.z = z + k * z/D
+        
         try:
             self.point_pub.publish(msg)
+            # self.point_x_pub.publish(msg.point.x)
+            # self.point_y_pub.publish(msg.point.y)
+            # self.point_z_pub.publish(msg.point.z)
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: %s", e)
         
