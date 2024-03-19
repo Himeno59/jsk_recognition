@@ -1,25 +1,51 @@
 <launch>
 
-  <arg name="INPUT_CLOUD" value="/rs_l515/depth/color/points" />
+  <arg name="INPUT_CLOUD" value="/rs_l515/depth/color/points" />　
+ 
+  <group ns="all">    
+    <node name="attention_clipper"
+          pkg="nodelet" type="nodelet"
+          args="standalone jsk_pcl/AttentionClipper">
+      <remap from="~input/points" to="$(arg INPUT_CLOUD)" />
+      <rosparam>
+        initial_pos: [0, 0.15, 0.9]
+        initial_rot: [0, 0, 0]
+        dimension_x: 1.0
+        dimension_y: 1.0
+        dimension_z: 1.8
+        frame_id: rs_l515_depth_optical_frame
+      </rosparam>
+    </node>
 
-  <node name="attention_clipper"
-        pkg="nodelet" type="nodelet"
-        args="standalone jsk_pcl/AttentionClipper">
-    <remap from="~input/points" to="$(arg INPUT_CLOUD)" />
-    <rosparam>
-      initial_pos: [0, 0.15, 0.6]
-      initial_rot: [0, 0, 0]
-      dimension_x: 1.0
-      dimension_y: 1.0
-      dimension_z: 1.2
-      frame_id: rs_l515_depth_optical_frame
-    </rosparam>
-  </node>
+    <node name="extract_indices"
+          pkg="jsk_pcl_ros" type="extract_indices">
+      <remap from="~input" to="$(arg INPUT_CLOUD)" />
+      <remap from="~indices" to="attention_clipper/output/point_indices" />
+    </node>
+  </group>
+  
+  <group ns="under">    
+    <node name="attention_clipper"
+          pkg="nodelet" type="nodelet"
+          args="standalone jsk_pcl/AttentionClipper">
+      <remap from="~input/points" to="$(arg INPUT_CLOUD)" />
+      <rosparam>
+        initial_pos: [0, 0.15, 1.35]
+        initial_rot: [0, 0, 0]
+        dimension_x: 1.0
+        dimension_y: 1.0
+        dimension_z: 0.9
+        frame_id: rs_l515_depth_optical_frame
+      </rosparam>
+    </node>
 
-  <node name="extract_indices"
-        pkg="jsk_pcl_ros" type="extract_indices">
-    <remap from="~input" to="$(arg INPUT_CLOUD)" />
-    <remap from="~indices" to="attention_clipper/output/point_indices" />
-  </node>
+    <node name="extract_indices"
+          pkg="jsk_pcl_ros" type="extract_indices">
+      <remap from="~input" to="$(arg INPUT_CLOUD)" />
+      <remap from="~indices" to="attention_clipper/output/point_indices" />
+    </node>
+  </group>
+  
+
 
 </launch>

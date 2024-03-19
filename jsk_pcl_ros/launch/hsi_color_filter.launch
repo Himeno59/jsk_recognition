@@ -14,11 +14,11 @@
   <arg name="FILTER_NAME_SUFFIX" default=""/>
   <arg name="OUTPUT" default="hsi_output$(arg FILTER_NAME_SUFFIX)"/>
 
-  <arg name="color1" default="light_blue"/>
-  <arg name="color2" default="white"/>
+  <arg name="color1" default="green"/>
+  <arg name="color2" default="blue"/>
 
-  <arg name="detect_color1" default="true"/>
-  <arg name="detect_color2" default="true"/>
+  <arg name="detect_green" default="true"/>
+  <arg name="detect_blue" default="true"/>
   
   <!-- <arg name="h_max" default="127" /> -->
   <!-- <arg name="h_min" default="-128" /> -->
@@ -37,7 +37,7 @@
   <arg name="create_manager" default="true" />
   <arg name="manager" default="hsi_filter_manager$(arg FILTER_NAME_SUFFIX)" />
 
-  <group ns="$(arg color1)" if="$(arg detect_color1)">
+  <group ns="$(arg color1)" if="$(arg detect_green)">
     <node if="$(arg create_manager)"
           pkg="nodelet" type="nodelet" name="$(arg manager)"
           args="manager" output="screen"/>
@@ -50,12 +50,12 @@
         use_indices: false
         keep_organized: true
       </rosparam>
-      <param name="h_limit_max" value="-40" />
-      <param name="h_limit_min" value="-128" />
-      <param name="s_limit_max" value="170" />
-      <param name="s_limit_min" value="40" />
-      <param name="i_limit_max" value="255" />
-      <param name="i_limit_min" value="50" />
+      <param name="h_limit_max" value="127" />
+      <param name="h_limit_min" value="90" />
+      <param name="s_limit_max" value="255" />
+      <param name="s_limit_min" value="120" />
+      <param name="i_limit_max" value="130" />
+      <param name="i_limit_min" value="0" />
     </node>
     <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
@@ -80,7 +80,7 @@
 
   </group>
 
-  <group ns="$(arg color2)" if="$(arg detect_color2)">
+  <group ns="$(arg color2)" if="$(arg detect_blue)">
     <node if="$(arg create_manager)"
           pkg="nodelet" type="nodelet" name="$(arg manager)"
           args="manager" output="screen"/>
@@ -93,12 +93,12 @@
         use_indices: false
         keep_organized: true
       </rosparam>
-      <param name="h_limit_max" value="127" />
-      <param name="h_limit_min" value="-128" />
-      <param name="s_limit_max" value="20" />
-      <param name="s_limit_min" value="0" />
-      <param name="i_limit_max" value="255" />
-      <param name="i_limit_min" value="250" />
+      <param name="h_limit_max" value="-90" />
+      <param name="h_limit_min" value="-110" />
+      <param name="s_limit_max" value="255" />
+      <param name="s_limit_min" value="250" />
+      <param name="i_limit_max" value="100" />
+      <param name="i_limit_min" value="30" />
     </node>
     <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
