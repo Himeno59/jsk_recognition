@@ -8,11 +8,11 @@
           args="standalone jsk_pcl/AttentionClipper">
       <remap from="~input/points" to="$(arg INPUT_CLOUD)" />
       <rosparam>
-        initial_pos: [0, 0.15, 0.9]
+        initial_pos: [0, 0.15, 0.75]
         initial_rot: [0, 0, 0]
         dimension_x: 1.0
-        dimension_y: 1.0
-        dimension_z: 1.8
+        dimension_y: 1.5
+        dimension_z: 1.5
         frame_id: rs_l515_depth_optical_frame
       </rosparam>
     </node>
@@ -30,11 +30,11 @@
           args="standalone jsk_pcl/AttentionClipper">
       <remap from="~input/points" to="$(arg INPUT_CLOUD)" />
       <rosparam>
-        initial_pos: [0, 0.15, 1.35]
-        initial_rot: [0, 0, 0]
+        initial_pos: [0.15, 0.25, 1.0]
+        initial_rot: [-0.75, 0, 0]
         dimension_x: 1.0
-        dimension_y: 1.0
-        dimension_z: 0.9
+        dimension_y: 1.2
+        dimension_z: 0.65
         frame_id: rs_l515_depth_optical_frame
       </rosparam>
     </node>

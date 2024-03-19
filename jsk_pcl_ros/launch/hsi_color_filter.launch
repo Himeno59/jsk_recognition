@@ -8,7 +8,8 @@
   * subscribe camera/depth_registered/hsi_output
   * subscribe tf and find /target
   -->
-  <arg name="INPUT" default="/rs_l515/depth/color/points"/>
+  <arg name="INPUT1" default="/rs_l515/depth/color/points"/>
+  <arg name="INPUT2" default="/rs_l515/depth/color/points"/>
   <arg name="CENTROID_FRAME" default="target"/>
   <arg name="DEFAULT_NAMESPACE" default="HSI_color_filter"/>
   <arg name="FILTER_NAME_SUFFIX" default=""/>
@@ -44,16 +45,16 @@
 
     <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
-      <remap from="~input" to="$(arg INPUT)" />
+      <remap from="~input" to="$(arg INPUT1)" />
       <remap from="~output" to="$(arg OUTPUT)" />
       <rosparam>
         use_indices: false
         keep_organized: true
       </rosparam>
-      <param name="h_limit_max" value="127" />
-      <param name="h_limit_min" value="90" />
+      <param name="h_limit_max" value="110" />
+      <param name="h_limit_min" value="80" />
       <param name="s_limit_max" value="255" />
-      <param name="s_limit_min" value="120" />
+      <param name="s_limit_min" value="200" />
       <param name="i_limit_max" value="130" />
       <param name="i_limit_min" value="0" />
     </node>
@@ -61,8 +62,8 @@
           args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
       <remap from="~input" to="$(arg OUTPUT)" />
       <rosparam>
-        tolerance: 0.02
-        min_size: 100
+        tolerance: 0.01
+        min_size: 0
       </rosparam>
     </node>
 
@@ -87,16 +88,16 @@
 
     <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
-      <remap from="~input" to="$(arg INPUT)" />
+      <remap from="~input" to="$(arg INPUT2)" />
       <remap from="~output" to="$(arg OUTPUT)" />
       <rosparam>
         use_indices: false
         keep_organized: true
       </rosparam>
-      <param name="h_limit_max" value="-90" />
+      <param name="h_limit_max" value="-80" />
       <param name="h_limit_min" value="-110" />
       <param name="s_limit_max" value="255" />
-      <param name="s_limit_min" value="250" />
+      <param name="s_limit_min" value="240" />
       <param name="i_limit_max" value="100" />
       <param name="i_limit_min" value="30" />
     </node>
@@ -105,7 +106,7 @@
       <remap from="~input" to="$(arg OUTPUT)" />
       <rosparam>
         tolerance: 0.02
-        min_size: 100
+        min_size: 0
       </rosparam>
     </node>
 
