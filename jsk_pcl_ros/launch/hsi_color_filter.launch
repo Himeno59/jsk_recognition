@@ -8,18 +8,19 @@
   * subscribe camera/depth_registered/hsi_output
   * subscribe tf and find /target
   -->
-  <arg name="INPUT1" default="/rs_l515/depth/color/points"/>
-  <arg name="INPUT2" default="/rs_l515/depth/color/points"/>
+  <arg name="INPUT" default="/rs_l515/depth/color/points"/>
   <arg name="CENTROID_FRAME" default="target"/>
   <arg name="DEFAULT_NAMESPACE" default="HSI_color_filter"/>
   <arg name="FILTER_NAME_SUFFIX" default=""/>
   <arg name="OUTPUT" default="hsi_output$(arg FILTER_NAME_SUFFIX)"/>
 
+  <arg name="basketball_color" default="orange"/>
   <arg name="color1" default="green"/>
   <arg name="color2" default="blue"/>
 
-  <arg name="detect_green" default="true"/>
-  <arg name="detect_blue" default="true"/>
+  <arg name="ball_detect" default="true"/>
+  <arg name="green_detect" default="false"/>
+  <arg name="blue_detect" default="false"/>
   
   <!-- <arg name="h_max" default="127" /> -->
   <!-- <arg name="h_min" default="-128" /> -->
@@ -27,25 +28,63 @@
   <!-- <arg name="s_min" default="0" /> -->
   <!-- <arg name="i_max" default="255" /> -->
   <!-- <arg name="i_min" default="0" /> -->
-  
-  <!-- <arg name="h_max" default="8" /> -->
-  <!-- <arg name="h_min" default="5" /> -->
-  <!-- <arg name="s_max" default="200" /> -->
-  <!-- <arg name="s_min" default="60" /> -->
-  <!-- <arg name="i_max" default="255" /> -->
-  <!-- <arg name="i_min" default="100" /> -->
 
-  <arg name="create_manager" default="true" />
-  <arg name="manager" default="hsi_filter_manager$(arg FILTER_NAME_SUFFIX)" />
+  <arg name="create_manager" default="true"/>
+  <arg name="manager" default="hsi_filter_manager$(arg FILTER_NAME_SUFFIX)"/>
 
-  <group ns="$(arg color1)" if="$(arg detect_green)">
+  <!-- for basketball-detect -->
+  <group ns="$(arg basketball_color)" if="$(arg ball_detect)">
     <node if="$(arg create_manager)"
           pkg="nodelet" type="nodelet" name="$(arg manager)"
           args="manager" output="screen"/>
 
     <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
-      <remap from="~input" to="$(arg INPUT1)" />
+      <remap from="~input" to="$(arg INPUT)" />
+      <remap from="~output" to="$(arg OUTPUT)" />
+      <rosparam>
+        use_indices: false
+        keep_organized: true
+      </rosparam>
+      <param name="h_limit_max" value="8" />
+      <param name="h_limit_min" value="5" />
+      <param name="s_limit_max" value="200" />
+      <param name="s_limit_min" value="60" />
+      <param name="i_limit_max" value="255" />
+      <param name="i_limit_min" value="100" />
+    </node>
+    <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
+      <remap from="~input" to="$(arg OUTPUT)" />
+      <rosparam>
+        tolerance: 0.01
+        min_size: 0
+      </rosparam>
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          name="cluster_decomposer$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/ClusterPointIndicesDecomposerZAxis $(arg manager)"
+          output="screen" clear_params="true">
+      <remap from="~input" to="$(arg OUTPUT)" />
+      <remap from="~target" to="euclidean_clustering$(arg FILTER_NAME_SUFFIX)/output" />
+      <remap from="~debug_output" to="debug_output$(arg FILTER_NAME_SUFFIX)" />
+      <remap from="~boxes" to="boxes$(arg FILTER_NAME_SUFFIX)" />
+      <rosparam>
+      </rosparam>
+    </node>
+
+  </group>
+
+  <!-- for knot-demo -->
+  <group ns="$(arg color1)" if="$(arg green_detect)">
+    <node if="$(arg create_manager)"
+          pkg="nodelet" type="nodelet" name="$(arg manager)"
+          args="manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
+      <remap from="~input" to="$(arg INPUT)" />
       <remap from="~output" to="$(arg OUTPUT)" />
       <rosparam>
         use_indices: false
@@ -81,14 +120,14 @@
 
   </group>
 
-  <group ns="$(arg color2)" if="$(arg detect_blue)">
+  <group ns="$(arg color2)" if="$(arg blue_detect)">
     <node if="$(arg create_manager)"
           pkg="nodelet" type="nodelet" name="$(arg manager)"
           args="manager" output="screen"/>
 
     <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
-      <remap from="~input" to="$(arg INPUT2)" />
+      <remap from="~input" to="$(arg INPUT)" />
       <remap from="~output" to="$(arg OUTPUT)" />
       <rosparam>
         use_indices: false
@@ -123,5 +162,5 @@
     </node>
 
   </group>
-
+  
 </launch>

@@ -1,13 +1,13 @@
+<!-- -*- mode: xml -*- -->
 <launch>
-
-  <arg name="gui" default="true" />
-
-  <include file="$(find jsk_pcl_ros_utils)/sample/include/play_rosbag_arc2017_4objects.xml" />
+  <arg name="gui" default="false" />
+  <!-- <include file="$(find jsk_pcl_ros_utils)/sample/include/play_rosbag_arc2017_4objects.xml" /> -->
+  <arg name="INPUT" default="/orange/hsi_output" />
 
   <node name="centroid_publisher"
         pkg="nodelet" type="nodelet"
         args="standalone jsk_pcl_utils/CentroidPublisher">
-    <remap from="~input" to="/HSI_color_filter/hsi_output/" />
+    <remap from="~input" to="$(arg INPUT)" />
     <rosparam>
       publish_tf: true
     </rosparam>
@@ -17,7 +17,7 @@
   <node name="passthrough"
         pkg="nodelet" type="nodelet"
         args="standalone pcl/PassThrough">
-    <remap from="~input" to="/HSI_color_filter/hsi_output/" />
+    <remap from="~input" to="$(arg INPUT)" />
     <rosparam>
       frame_id: camera_link
       filter_field_name: z
