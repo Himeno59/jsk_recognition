@@ -9,7 +9,7 @@
         args="standalone jsk_pcl_utils/CentroidPublisher">
     <remap from="~input" to="$(arg INPUT)" />
     <rosparam>
-      publish_tf: false
+      publish_tf: true
     </rosparam>
   </node>
 
@@ -32,7 +32,7 @@
         args="standalone jsk_pcl_utils/CentroidPublisher">
     <remap from="~input" to="passthrough/output" />
     <rosparam>
-      publish_tf: false
+      publish_tf: true
     </rosparam>
   </node>
 

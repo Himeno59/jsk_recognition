@@ -14,11 +14,13 @@
   <arg name="FILTER_NAME_SUFFIX" default=""/>
   <arg name="OUTPUT" default="hsi_output$(arg FILTER_NAME_SUFFIX)"/>
 
-  <arg name="basketball_color" default="orange"/>
+  <arg name="basketball_color1" default="orange1"/>
+  <arg name="basketball_color2" default="orange2"/>
   <arg name="color1" default="green"/>
   <arg name="color2" default="blue"/>
 
-  <arg name="ball_detect" default="true"/>
+  <arg name="ball1_detect" default="false"/>
+  <arg name="ball2_detect" default="true"/>
   <arg name="green_detect" default="false"/>
   <arg name="blue_detect" default="false"/>
   
@@ -33,7 +35,7 @@
   <arg name="manager" default="hsi_filter_manager$(arg FILTER_NAME_SUFFIX)"/>
 
   <!-- for basketball-detect -->
-  <group ns="$(arg basketball_color)" if="$(arg ball_detect)">
+  <group ns="$(arg basketball_color1)" if="$(arg ball1_detect)">
     <node if="$(arg create_manager)"
           pkg="nodelet" type="nodelet" name="$(arg manager)"
           args="manager" output="screen"/>
@@ -52,6 +54,49 @@
       <param name="s_limit_min" value="60" />
       <param name="i_limit_max" value="255" />
       <param name="i_limit_min" value="100" />
+    </node>
+    <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">
+      <remap from="~input" to="$(arg OUTPUT)" />
+      <rosparam>
+        tolerance: 0.01
+        min_size: 0
+      </rosparam>
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          name="cluster_decomposer$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/ClusterPointIndicesDecomposerZAxis $(arg manager)"
+          output="screen" clear_params="true">
+      <remap from="~input" to="$(arg OUTPUT)" />
+      <remap from="~target" to="euclidean_clustering$(arg FILTER_NAME_SUFFIX)/output" />
+      <remap from="~debug_output" to="debug_output$(arg FILTER_NAME_SUFFIX)" />
+      <remap from="~boxes" to="boxes$(arg FILTER_NAME_SUFFIX)" />
+      <rosparam>
+      </rosparam>
+    </node>
+
+  </group>
+
+  <group ns="$(arg basketball_color2)" if="$(arg ball2_detect)">
+    <node if="$(arg create_manager)"
+          pkg="nodelet" type="nodelet" name="$(arg manager)"
+          args="manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="hsi_filter$(arg FILTER_NAME_SUFFIX)"
+          args="load jsk_pcl/HSIColorFilter $(arg manager)" output="screen">
+      <remap from="~input" to="$(arg INPUT)" />
+      <remap from="~output" to="$(arg OUTPUT)" />
+      <rosparam>
+        use_indices: false
+        keep_organized: true
+      </rosparam>
+      <param name="h_limit_max" value="20" />
+      <param name="h_limit_min" value="0" />
+      <param name="s_limit_max" value="130" />
+      <param name="s_limit_min" value="70" />
+      <param name="i_limit_max" value="140" />
+      <param name="i_limit_min" value="70" />
     </node>
     <node pkg="nodelet" type="nodelet" name="euclidean_clustering$(arg FILTER_NAME_SUFFIX)"
           args="load jsk_pcl/EuclideanClustering $(arg manager)" output="screen">

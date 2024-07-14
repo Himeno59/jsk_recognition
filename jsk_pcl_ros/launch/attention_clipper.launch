@@ -8,11 +8,11 @@
           args="standalone jsk_pcl/AttentionClipper">
       <remap from="~input/points" to="$(arg INPUT_CLOUD)" />
       <rosparam>
-        initial_pos: [0, 0.15, 0.75]
+        initial_pos: [0, 0.15, 1.25]
         initial_rot: [0, 0, 0]
-        dimension_x: 1.0
-        dimension_y: 1.5
-        dimension_z: 1.5
+        dimension_x: 2.0
+        dimension_y: 2.0
+        dimension_z: 2.5
         frame_id: rs_l515_depth_optical_frame
       </rosparam>
     </node>
@@ -24,7 +24,7 @@
     </node>
   </group>
   
-  <group ns="under">    
+  <group ns="under">
     <node name="attention_clipper"
           pkg="nodelet" type="nodelet"
           args="standalone jsk_pcl/AttentionClipper">
